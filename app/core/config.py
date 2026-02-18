@@ -1,6 +1,7 @@
 """Configuration management using Pydantic Settings."""
 
 from typing import Optional
+import os
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import Field, validator
 
@@ -66,6 +67,16 @@ class Settings(BaseSettings):
             raise ValueError("Google API key is required when provider is 'gemini'")
         return v
     
+    @validator("database_url", pre=True, always=True)
+    def adjust_database_url(cls, v, values):
+        # Check if running in a cloud function environment (Vercel or Netlify/AWS)
+        is_serverless = os.getenv("VERCEL") or os.getenv("AWS_LAMBDA_FUNCTION_NAME") or os.getenv("NETLIFY")
+        
+        # If using default SQLite path and in serverless env, use /tmp
+        if is_serverless and "sqlite" in v and "agent_framework.db" in v:
+            return "sqlite+aiosqlite:////tmp/agent_framework.db"
+        return v
+
     @validator("cors_origins")
     def parse_cors_origins(cls, v: str) -> list:
         """Parse comma-separated CORS origins into list."""
