@@ -1,0 +1,43 @@
+# Core Dependencies
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+pydantic==2.5.3
+pydantic-settings==2.1.0
+
+# LangChain Ecosystem
+langchain==0.1.4
+langchain-openai==0.0.5
+langchain-google-genai==0.0.6
+langchain-community==0.0.16
+langserve[all]==0.0.43
+
+# OpenAI
+openai==1.10.0
+
+# Database
+sqlalchemy==2.0.25
+aiosqlite==0.19.0
+asyncpg==0.29.0
+alembic==1.13.1
+
+# Tools & Utilities
+duckduckgo-search==4.1.1
+python-multipart==0.0.6
+python-dotenv==1.0.0
+httpx==0.26.0
+
+# Monitoring & Metrics
+prometheus-client==0.19.0
+
+# Security
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+
+# Code Execution (Safe)
+RestrictedPython>=6.0
+
+# Development
+pytest==7.4.4
+pytest-asyncio==0.23.3
+black==23.12.1
+ruff==0.1.11

@@ -1,0 +1,95 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: agent-framework
+  namespace: ai-agents
+  labels:
+    app: agent-framework
+    version: v1
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: agent-framework
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: agent-framework
+        version: v1
+    spec:
+      containers:
+      - name: agent-framework
+        image: gcr.io/YOUR_PROJECT_ID/agent-framework:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+          name: http
+          protocol: TCP
+        
+        # Environment variables from ConfigMap
+        envFrom:
+        - configMapRef:
+            name: agent-framework-config
+        
+        # Environment variables from Secret
+        env:
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: agent-framework-secret
+              key: OPENAI_API_KEY
+        - name: API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: agent-framework-secret
+              key: API_KEY
+        
+        # Resource limits and requests
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        
+        # Liveness probe
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        
+        # Readiness probe
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        
+        # Security context
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          runAsUser: 1000
+          capabilities:
+            drop:
+            - ALL
+      
+      # Pod security context
+      securityContext:
+        fsGroup: 1000
+      
+      # Restart policy
+      restartPolicy: Always

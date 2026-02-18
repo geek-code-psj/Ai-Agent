@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: agent-framework-ingress
+  namespace: ai-agents
+  annotations:
+    kubernetes.io/ingress.class: "gce"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    # Enable HTTPS redirect
+    ingress.gcp.kubernetes.io/pre-shared-cert: "agent-framework-cert"
+spec:
+  rules:
+  - host: agent-framework.example.com  # Replace with your domain
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: agent-framework-service
+            port:
+              number: 80
+  tls:
+  - hosts:
+    - agent-framework.example.com  # Replace with your domain
+    secretName: agent-framework-tls

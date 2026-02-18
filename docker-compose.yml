@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  # PostgreSQL database
+  postgres:
+    image: postgres:16-alpine
+    container_name: agent-framework-db
+    environment:
+      POSTGRES_USER: agent_user
+      POSTGRES_PASSWORD: agent_password
+      POSTGRES_DB: agent_framework
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U agent_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # AI Agent Framework
+  app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: agent-framework-app
+    environment:
+      # OpenAI
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      OPENAI_MODEL: gpt-4o-mini
+      
+      # Database
+      DATABASE_URL: postgresql+asyncpg://agent_user:agent_password@postgres:5432/agent_framework
+      
+      # API
+      API_HOST: 0.0.0.0
+      API_PORT: 8000
+      API_KEY: ${API_KEY:-your-api-key-here}
+      
+      # Agent Config
+      MAX_ITERATIONS: 10
+      MAX_EXECUTION_TIME: 300
+      CONVERSATION_MEMORY_SIZE: 10
+      
+      # Features
+      ENABLE_WEB_SEARCH: "true"
+      ENABLE_CODE_EXECUTION: "true"
+      ENABLE_FILE_OPERATIONS: "true"
+      ENABLE_METRICS: "true"
+      
+      # Logging
+      LOG_LEVEL: INFO
+      
+      # CORS
+      CORS_ORIGINS: "*"
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./app:/app/app:ro
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

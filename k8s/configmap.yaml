@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: agent-framework-config
+  namespace: ai-agents
+data:
+  # OpenAI Configuration
+  OPENAI_MODEL: "gpt-4o-mini"
+  
+  # Database Configuration (use Secret for password)
+  DATABASE_URL: "postgresql+asyncpg://agent_user:REPLACE_WITH_SECRET@postgres-service:5432/agent_framework"
+  
+  # API Configuration
+  API_HOST: "0.0.0.0"
+  API_PORT: "8000"
+  
+  # Agent Configuration
+  MAX_ITERATIONS: "10"
+  MAX_EXECUTION_TIME: "300"
+  CONVERSATION_MEMORY_SIZE: "10"
+  
+  # Feature Flags
+  ENABLE_WEB_SEARCH: "true"
+  ENABLE_CODE_EXECUTION: "true"
+  ENABLE_FILE_OPERATIONS: "true"
+  ENABLE_METRICS: "true"
+  
+  # Logging
+  LOG_LEVEL: "INFO"
+  
+  # CORS
+  CORS_ORIGINS: "*"
